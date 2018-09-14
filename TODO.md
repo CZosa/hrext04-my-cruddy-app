@@ -48,16 +48,16 @@
 
 
 My features:
-( 6 ) Add checkbox to each item -- user clicks on checkbox when todo is completed
-( 4 ) Add timestamp for each entry
-( 4 ) Add due date
-( 5 ) Ability to add comments on item
-( 5 ) Toggle all button
-( 5 ) Add delete button next to each item
-( 5 ) Reset list of items
-( 7 ) Format layout of todo list- Use CSS
+( 5 ) Add checkbox to each item -- user clicks on checkbox when todo is completed [ X ]
+( 6 ) Ability to update an item [ X ]
+( 6 ) Ability to refresh page and same items still show up [ X ]
+( 5 ) Ability to change an item, click refresh and updated item still shows up  [ X ]
+( 5 ) Strike-through completed items [ X ]
+( 5 ) Add delete button next to each item [ X ]
+( 4 ) Create an error message if user does not insert todo [ X ]
+( 7 ) Format layout of todo list- Use CSS [ X ]
 
-4 + 2 + 2 + 3 + 3 + 3 + 3 + 5 = ~25 hrs
+3 + 4 + 4 + 3 + 3 + 3 + 2 + 5 = ~27 hrs
 
 
 
