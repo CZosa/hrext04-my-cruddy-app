@@ -1,0 +1,104 @@
+header {
+   font-family: serif;
+   font-size: 30px;
+   font-style: italic;
+   text-align: left
+}
+
+body
+{
+   height: 1000px;
+   width: 850px;
+   margin-top: 40px;
+   margin-left: 310px;
+   background-image: url("notebook paper.jpg");
+   background-repeat: no-repeat;
+   background-size: auto;
+   position: fixed;
+
+}
+
+#new-todo {
+   margin-top: 10px;
+   width: 550px;
+   height: 43px;
+   font-size: 1.5em;
+   font-family: sans-serif;
+   font-style: italic;
+   background: transparent;
+}
+
+.error-message
+{
+   display: none;
+   color: #FA4343;
+   width: 1000px;
+}
+
+.todos
+{
+   margin-top: 18px;
+   list-style: none;
+   padding: 0;
+   font-size: 1.75em;
+   line-height: 1.6;
+   font-family: fantasy;
+}
+
+.todo
+{
+   position: relative;
+   padding: 0.44em 0.44em; 
+   background: transparent; 
+}
+
+.todo > *
+{
+   vertical-align: middle;
+}
+
+.todo-position
+{
+   width: 3em;
+}
+
+.todo-done {
+	width: 30px;
+	height: 30px;
+}
+
+.todo-title
+{
+   width: 80%;
+   display: inline-block;
+   overflow: hidden;
+   white-space: nowrap;
+   text-overflow: ellipsis;
+}
+
+.todo-title:focus
+{
+   background-color: #FFFFFF;
+}
+
+.todo-stroked
+{
+   text-decoration: line-through;
+}
+
+.todo-delete
+{
+   float: right;
+   cursor: pointer;
+   margin-top: 8px;
+}
+
+#footer {
+   color: black;
+   position: fixed;
+   bottom: 0;
+   display: block;
+   text-align: left;
+   font-size: 10px;
+   width:
+}
