@@ -1,65 +1,183 @@
-$(document).ready(function() {
+// Create a global variable to add Models, Collections and Views
+window.app = {};
 
+// Create the Todo Model
+app.Todo = Backbone.Model.extend({
+   // Set the default values for a new instance of the Todo Model
+   defaults: {
+      position: 1,
+      title: '',
+      done: false
+   },
 
-  $(".add-text-btn").on("click", function(){
+   // Initialize the Model with some functions to log operations
+   initialize: function() {
+      this
+         .on('invalid', function(model, error) {
+            console.log(error);
+         })
+         .on('add', function(model, error) {
+            console.log('Todo with title "' + model.get('title') + '" added.');
+         })
+         .on('remove', function(model, error) {
+            console.log('Todo with title "' + model.get('title') + '" deleted.');
+         })
+         .on('change', function(model, error) {
+            console.log('Todo with title "' + model.get('title') + '" updated.');
+         });
+   },
 
-    // store values
-    let inputKey = $(".user-input-title").val();
-    let inputValue = $(".user-input-body").val();
+   // Function to validate the properties of the model
+   validate: function(attributes) {
+      if(!attributes.title) {
+         return 'Error: Please enter your todo';
+      }
 
-    // clear values
-    $(".user-input-title").val("");
-    $(".user-input-body").val("");
+      if(attributes.position === undefined || parseInt(attributes.position, 10) < 1) {
+         return 'Position must be positive';
+      }
+   }
+});
 
-    console.log(inputKey, inputValue);
+// Create the Todos Collection
+app.todoList = new (Backbone.Collection.extend({
+   // Specify this is a Collection of Todo Models
+   model: app.Todo,
 
-    localStorage.setItem(inputKey, inputValue);
-    // data-
-    let itemHtml = '<div class="display-item" data-storage-key="'+inputKey+'"> ' + inputKey + ' ' +  localStorage.getItem(inputKey) + '</div>';
-    $(".display").html(itemHtml);
-    //console.log(localStorage);
-    // how can we delegate this event to the outer html node?
-    // https://learn.jquery.com/events/event-delegation/
+   // The (local) storage where the Todos are stored
+   localStorage: new Backbone.LocalStorage('todo-list'),
 
-    $(".display-item").on("click", function(e){
-      // plop the key:value back into the input boxes
+   comparator: 'position',
 
-      // get the values from the the divs?
-      console.log("key=> ", e.target.dataset.storageKey); // user-input-title
-      localStorage.getItem(e.target.dataset.storageKey); // user-input-body
+   initialize: function() {
+      this.on('add remove', this.collectionChanged);
+   },
 
-      // set those values in the form fields
-      $(".user-input-title").val(e.target.dataset.storageKey);
-      $(".user-input-body").val(localStorage.getItem(e.target.dataset.storageKey));
-    });
+   collectionChanged: function(todo) {
+      // Elements are updated only if the new element is valid
+      if (todo.isValid()) {
+         this.each(function(element, index) {
+            element.save({
+               position: index + 1
+            });
+         });
+         this.sort();
+      }
+   }
+}));
 
-  });
+// Create the Todo View
+app.TodoView = Backbone.View.extend({
+   tagName: 'li',
+   className: 'todo',
 
+   template: _.template($('#todo-template').html()),
 
+   events: {
+      'blur .todo-position': 'updateTodo',
+      'change .todo-done': 'updateTodo',
+      'keypress .todo-title': 'updateOnEnter',
+      'click .todo-delete': 'deleteTodo'
+   },
 
-   // TODO add back in later
-   // $(".user-input").on("keyup", function(){
-   //   let inputValue = $(".user-input").val();
-   //   localStorage.setItem("testStorage", inputValue);
-   //   $(".display").text(localStorage.getItem("testStorage"));
-   // });
+   initialize: function() {
+      this.listenTo(this.model, 'change', this.render);
+      this.listenTo(this.model, 'destroy', this.remove);
+   },
 
-   $(".del-text-btn").on("click", function() {
-     alert('item deleted? check the console'); // maybe change to a window.confirm
-     localStorage.removeItem( $('.user-input-title').val() ); // grab the title and plop here
-     $(".user-input-title").val("");
-     $(".user-input-body").val("");
-     // clearing display? what if I have multiple items?
-     // after item is removed from local storage, redisplay items from local storage
-     // refresh from storage?
-   });
+   deleteTodo: function() {
+      // Delete the model from the storage
+      this.model.destroy();
 
+   },
 
-   // iterative approach to adding items
-   // store data as stringified array of objects
-   // store data with individual keys
-  // how do we get keys? research Object.keys
+   updateTodo: function() {
+      this.model.save({
+         title: $.trim(this.$title.text()),
+         position: parseInt(this.$position.text(), 10),
+         done: this.$done.is(':checked')
+      });
+   },
 
+   updateOnEnter: function(event) {
+      if (event.which === 13) {
+         this.updateTodo();
+      }
+   },
 
+   render: function() {
+      this.$el.html(this.template(this.model.toJSON()));
+      this.$title = this.$('.todo-title');
+      this.$position = this.$('.todo-position');
+      this.$done = this.$('.todo-done');
+
+      return this;
+   }
+});
+
+// Create the App View
+app.appView = Backbone.View.extend({
+   el: '#todo-sheet',
+
+   events: {
+      'click #new-todo-save': 'createTodo'
+   },
+
+   initialize: function() {
+      this.$input = this.$('#new-todo');
+      this.$list = this.$('ul.todos');
+
+      this.listenTo(app.todoList, 'reset sort destroy', this.showTodos);
+      this.listenTo(app.todoList, 'invalid', this.showError);
+
+      // Fetch the set of models from the storage and set them in the collection
+      app.todoList.fetch();
+   },
+
+   createTodo: function() {
+      // Create the new Todo, validate it and save it in the head of the list if valid
+      app.todoList.create(
+         {
+            title: this.$input.val().trim()
+         },
+         {
+            at: 0,
+            validate: true
+         }
+      );
+      // Reset the input box
+      this.$input.val('');
+   },
+
+   showError: function(collection, error, model) {
+      // Display the error to the user
+      this
+         .$('.error-message')
+         .finish()
+         .html(error)
+         .fadeIn('slow')
+         .delay(2000)
+         .fadeOut('slow');
+   },
+
+   showTodo: function(todo) {
+      // Add the item only if the model is valid
+      if (todo.isValid()) {
+         var view = new app.TodoView({ model: todo });
+         this.$list.prepend(view.render().el);
+      }
+   },
+
+   showTodos: function() {
+      this.$list.empty();
+      var todos = app.todoList.sortBy(function(element) {
+         return -1 * parseInt(element.get('position'), 10);
+      });
+      for(var i = 0; i < todos.length; i++) {
+         this.showTodo(todos[i]);
+      }
+   }
 
 });
+
+new app.appView();
