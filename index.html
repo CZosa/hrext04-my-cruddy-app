@@ -1,24 +1,40 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/html">
-  <head>
-    <meta charset="UTF-8">
-    <title>My First CRUD App</title>
-    <link rel="stylesheet" href="app.css">
-    <script
-            src="https://code.jquery.com/jquery-3.3.1.js"
-            integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
-            crossorigin="anonymous"></script>
-    <script src="app.js"></script>
+<html>
+   <head>
+      <meta charset="UTF-8">
+      <title>My First CRUD App</title>
+      <link rel="stylesheet" href="app.css">
+   </head>
+   <body>
+   	<header>
+   		<h1>TODO List</h1>
+   	</header>
+      
 
-  </head>
-  <body>
+      <div id="todo-sheet">
+         <input id="new-todo"  placeholder="Enter TODO">
+         <button id="new-todo-save">Add to list</button>
+         <span class="error-message"></span>
+         <ul class="todos">
+         </ul>
+      </div>
 
-  <input type="text" class="user-input-title" placeholder="Enter the Title">
-  <textarea class="user-input-body" placeholder="Enter the body of text"></textarea>
+      <div id="footer">
+       <footer>&copy2018 CRUDDY App</footer>
+     </div>
 
-  <button class="add-text-btn">add text</button>
-  <button class="del-text-btn">delete text</button>
+      <script type="text/template" id="todo-template">
+         <span class="todo-position"><%- position %></span>.
+         <input class="todo-done" type="checkbox" <%= done ? checked="checked" : '' %> title="Completed" />
+         <span class="todo-title <%= done ? 'todo-stroked' : '' %>" contenteditable="true"><%- title %></span>
+         <button class="todo-delete" title="Delete">X</button>
+      </script>
 
-  <div class="display"></div>
-  </body>
+      <script src="jquery.js"></script>
+      <script src="underscore.js"></script>
+      <script src="backbone.js"></script>
+      <script src="backbone.localStorage.min.js"></script>
+      <script src="app.js"></script>
+   </body>
 </html>
